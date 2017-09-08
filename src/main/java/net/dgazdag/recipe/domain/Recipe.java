@@ -5,6 +5,8 @@ package net.dgazdag.recipe.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -23,7 +25,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(exclude = {"notes", "ingredients"})
 public class Recipe
 {
@@ -63,7 +66,8 @@ public class Recipe
   public void setNotes(Notes notes)
   {
     this.notes = notes;
-    notes.setRecipe(this);
+    if(notes != null)
+      notes.setRecipe(this);
   }
 
   public void addIngredient(Ingredient ingredient){

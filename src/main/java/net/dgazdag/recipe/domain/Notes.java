@@ -5,6 +5,8 @@ package net.dgazdag.recipe.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,7 +16,8 @@ import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 
 @Entity
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(exclude = {"recipe"})
 public class Notes
 {
