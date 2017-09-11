@@ -2,6 +2,7 @@ package net.dgazdag.recipe.controllers;
 
 import net.dgazdag.recipe.commands.RecipeCommand;
 import net.dgazdag.recipe.domain.Recipe;
+import net.dgazdag.recipe.exceptions.NotFoundException;
 import net.dgazdag.recipe.services.RecipeService;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +36,9 @@ public class RecipeControllerTest
     MockitoAnnotations.initMocks(this);
 
     controller = new RecipeController(recipeService);
-    mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+    mockMvc = MockMvcBuilders.standaloneSetup(controller)
+        .setControllerAdvice(new ControllerExceptionHandler())
+        .build();
   }
 
   @Test
@@ -87,6 +90,8 @@ public class RecipeControllerTest
         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
         .param("id", "")
         .param("description", "some string")
+        .param("directions", "some directions")
+        .param("url", "http://recipe.com/somerecipe")
     )
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/recipe/2/show"));
@@ -112,5 +117,44 @@ public class RecipeControllerTest
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/"));
     verify(recipeService, times(1)).deleteById(anyLong());
+  }
+
+  @Test
+  public void testGetRecipeNotFound() throws Exception
+  {
+
+    when(recipeService.findById(anyLong())).thenThrow(NotFoundException.class);
+
+    mockMvc.perform(get("/recipe/1/show"))
+      .andExpect(status().isNotFound())
+      .andExpect(view().name("404error"));
+  }
+
+  @Test
+  public void testNumberFormatException() throws Exception
+  {
+    mockMvc.perform(get("/recipe/asd/show"))
+        .andExpect(status().isBadRequest())
+        .andExpect(view().name("400error"));
+  }
+
+  @Test
+  public void testPostNewRecipeFormValidationFail() throws Exception
+  {
+    RecipeCommand recipeCommand = new RecipeCommand();
+    recipeCommand.setId(2L);
+
+    when(recipeService.saveRecipeCommand(any())).thenReturn(recipeCommand);
+
+    mockMvc.perform(post("/recipe")
+      .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+      .param("id", "")
+      .param("cookTime", "3000"))
+
+        .andExpect(status().isOk())
+        .andExpect(model().attributeExists("recipe"))
+        .andExpect(view().name("recipe/recipeform"));
+
+
   }
 }

@@ -3,6 +3,7 @@ package net.dgazdag.recipe.services;
 import net.dgazdag.recipe.converters.RecipeCommandToRecipe;
 import net.dgazdag.recipe.converters.RecipeToRecipeCommand;
 import net.dgazdag.recipe.domain.Recipe;
+import net.dgazdag.recipe.exceptions.NotFoundException;
 import net.dgazdag.recipe.repositories.RecipeRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,5 +77,12 @@ public class RecipeServiceImplTest
     recipeService.deleteById(idToDelete);
 
     verify(recipeRepository, times(1)).deleteById(anyLong());
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void getRecipeByIdTestNotFound() throws Exception
+  {
+    when(recipeRepository.findById(anyLong())).thenReturn(Optional.empty());
+    Recipe recipe = recipeService.findById(1L);
   }
 }

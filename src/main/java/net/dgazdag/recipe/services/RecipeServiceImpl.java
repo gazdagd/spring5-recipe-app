@@ -8,6 +8,7 @@ import net.dgazdag.recipe.commands.RecipeCommand;
 import net.dgazdag.recipe.converters.RecipeCommandToRecipe;
 import net.dgazdag.recipe.converters.RecipeToRecipeCommand;
 import net.dgazdag.recipe.domain.Recipe;
+import net.dgazdag.recipe.exceptions.NotFoundException;
 import net.dgazdag.recipe.repositories.RecipeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +45,7 @@ public class RecipeServiceImpl implements RecipeService
   {
     Optional<Recipe> recipeOptional = recipeRepository.findById(id);
     if(!recipeOptional.isPresent()){
-      throw new RuntimeException("Recipe Not Found");
+      throw new NotFoundException("Recipe not found for id: " + id.toString());
     }
     return recipeOptional.get();
   }
